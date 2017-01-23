@@ -152,7 +152,15 @@ CG_INLINE CGFLOAT_TYPE FastttRound(CGFLOAT_TYPE f) {
     
     size_t bitsPerComponent = CGImageGetBitsPerComponent(imageRef);
     CGColorSpaceRef colorSpace = CGImageGetColorSpace(imageRef);
-    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
+    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef) & kCGBitmapAlphaInfoMask;
+    
+    //Since iOS8 it's not allowed anymore to create contexts with unmultiplied Alpha info
+    if (bitmapInfo == kCGImageAlphaLast) {
+        bitmapInfo = kCGImageAlphaPremultipliedLast;
+    }
+    if (bitmapInfo == kCGImageAlphaFirst) {
+        bitmapInfo = kCGImageAlphaPremultipliedFirst;
+    }
     
     CGContextRef context = CGBitmapContextCreate(NULL,
                                                  (size_t)CGRectGetWidth(newRect),
